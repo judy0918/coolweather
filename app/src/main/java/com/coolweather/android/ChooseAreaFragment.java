@@ -2,6 +2,7 @@ package com.coolweather.android;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,6 +88,13 @@ public class ChooseAreaFragment extends Fragment{
                 }else if(currentLevel==LEVEL_CITY){
                     selectedCity=cityList.get(position);
                     queryCounties();
+                }else if(currentLevel==LEVEL_COUNTY){
+                    String weatherId=countyList.get(position).getWeatherId();
+                    Intent intent=new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
+
                 }
             }
         });
@@ -173,6 +181,34 @@ public class ChooseAreaFragment extends Fragment{
         showProgressDialog();
         HttpUtil.sendOkHttpRequest(address, new Callback() {
             @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseText = response.body().string();
+                boolean result = false;
+                if ("province".equals(type)) {
+                    result = Utility.handleProvinceResponse(responseText);
+                } else if ("city".equals(type)) {
+                    result = Utility.handleCityResponse(responseText, selectedProvince.getId());
+                } else if ("county".equals(type)) {
+                    result = Utility.handleCountyResponse(responseText, selectedCity.getId());
+
+                }
+                if (result) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            closeProgressDialog();
+                            if ("province".equals(type)) {
+                                queryProvinces();
+                            } else if ("city".equals(type)) {
+                                queryCities();
+                            } else if ("county".equals(type)) {
+                                queryCounties();
+                            }
+                        }
+                    });
+                }
+            }
+            @Override
             public void onFailure(Call call, IOException e) {
                 //通过runOnUiThread()方法回到主线程处理逻辑
                 getActivity().runOnUiThread(new Runnable() {
@@ -182,36 +218,6 @@ public class ChooseAreaFragment extends Fragment{
                         Toast.makeText(getActivity(),"加载失败",Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseText=response.body().string();
-                boolean result=false;
-                if("province".equals(type)){
-                    result= Utility.handleProvinceResponse(responseText);
-                }else if("city".equals(type)){
-                    result=Utility.handleCityResponse(responseText,selectedProvince.getId());
-                }else  if("county".equals(type)){
-                    result=Utility.handleCountyResponse(responseText,selectedCity.getId());
-
-                }
-                if(result){
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            closeProgressDialog();
-                            if("province".equals(type)){
-                                queryProvinces();
-                            }else if("city".equals(type)){
-                                queryCities();
-                            }else if("county".equals(type)){
-                                queryCounties();
-                            }
-                        }
-                    });
-                }
-
             }
         });
     }
