@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +38,7 @@ public class ChooseAreaFragment extends Fragment{
     public static final int LEVEL_COUNTY=2;
     private ProgressDialog progressDialog;
     private TextView titleText;
-    private Button backButton;
+    private ImageView backButton;
     private ListView listView;
     private ArrayAdapter<String> adapter;
     private List<String> dataList=new ArrayList<>();
@@ -70,7 +71,7 @@ public class ChooseAreaFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view=inflater.inflate(R.layout.choose_area,container,false);
         titleText=(TextView) view.findViewById(R.id.title_text);
-        backButton=(Button) view.findViewById(R.id.back_button);
+        backButton=(ImageView) view.findViewById(R.id.back_button);
         listView=(ListView) view.findViewById(R.id.list_view);
         adapter=new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
@@ -125,7 +126,7 @@ public class ChooseAreaFragment extends Fragment{
      */
     private void queryProvinces(){
         titleText.setText("中国");
-        backButton.setVisibility(View.GONE);
+//        backButton.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Province.class);
         if(provinceList.size()>0){
             dataList.clear();
